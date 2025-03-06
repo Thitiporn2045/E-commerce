@@ -1,6 +1,10 @@
 import { Layout } from "../components/Layout";
 import { getProductById, getPendingOrder } from "../store";
 
+const formatPrice = (price: number): string => {
+  return price.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+};
+
 interface ConfirmOrderPageProps {
   orderId: string;
 }
@@ -64,9 +68,9 @@ export const ConfirmOrderPage = ({ orderId }: ConfirmOrderPageProps) => {
             <p class="text-gray-600">{product.description}</p>
 
             <p class="mt-2">
-              Price: ${product.price.toFixed(2)} x {quantity}
+              Price: ฿ {formatPrice(product.price)} x {quantity}
             </p>
-            <p class="font-bold mt-2">Total: ฿ {totalAmount.toFixed(2)}</p>
+            <p class="font-bold mt-2">Total: ฿ {formatPrice(totalAmount)}</p>
           </div>
 
           <form

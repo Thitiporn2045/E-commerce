@@ -1,6 +1,10 @@
 import nodemailer from "nodemailer";
 import { getProductById } from "../store";
 
+const formatPrice = (price: number): string => {
+  return price.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+};
+
 const createGmailTransporter = () => {
   return nodemailer.createTransport({
     service: "gmail",
@@ -60,9 +64,9 @@ export const sendOrderConfirmationEmail = async (
               <td style="padding: 12px 0; border-bottom: 1px solid #e5e7eb; text-align: center;">${
                 product.quantity
               }</td>
-              <td style="padding: 12px 0; border-bottom: 1px solid #e5e7eb; text-align: right;">$${(
-                getProductById(product.productId)?.price || 0
-              ).toFixed(2)}</td>
+              <td style="padding: 12px 0; border-bottom: 1px solid #e5e7eb; text-align: right;">$${formatPrice(
+                getProductById(product.productId)?.price || 0,
+              )}</td>
             </tr>
           `;
     })
@@ -118,8 +122,8 @@ export const sendOrderConfirmationEmail = async (
                       <tfoot>
                         <tr>
                           <td colspan="2" style="padding-top: 20px; text-align: right;"><strong>Total:</strong></td>
-                          <td style="padding-top: 20px; text-align: right;"><strong>$${totalAmount.toFixed(
-                            2,
+                          <td style="padding-top: 20px; text-align: right;"><strong>$${formatPrice(
+                            totalAmount,
                           )}</strong></td>
                         </tr>
                       </tfoot>
@@ -167,7 +171,7 @@ export const sendOrderConfirmationEmail = async (
         })
         .join("\n")}
 
-      Total Amount: $${totalAmount.toFixed(2)}
+      Total Amount: ฿ ${formatPrice(totalAmount)}
 
       We'll let you know when your order ships.
 

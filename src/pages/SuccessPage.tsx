@@ -1,6 +1,9 @@
-// src/pages/SuccessPage.tsx
 import { Layout } from "../components/Layout";
 import { getProductById, removePendingOrder } from "../store";
+
+const formatPrice = (price: number): string => {
+  return price.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+};
 
 interface SuccessPageProps {
   orderId: string;
@@ -9,7 +12,7 @@ interface SuccessPageProps {
   totalAmount: number;
   customerName: string;
   customerEmail: string;
-  customerTel: string; // Add this field
+  customerTel: string;
 }
 
 export const SuccessPage = ({
@@ -59,11 +62,8 @@ export const SuccessPage = ({
             <p class="mb-1">สินค้า: {product?.name}</p>
             <p class="mb-1">จำนวน: {quantity}</p>
             <p class="mb-1">จัดส่งไปยัง: ตึก Tipco Tower 2 ชั้น 20</p>
-            <p class="mb-1">เบอร์โทรศัพท์: {customerTel}</p>{" "}
-            {/* Add this line */}
-            <p class="font-bold">
-              ราคาสุทธิ: {Number(totalAmount).toFixed(2)} บาท
-            </p>
+            <p class="mb-1">เบอร์โทรศัพท์: {customerTel}</p>
+            <p class="font-bold">ราคาสุทธิ: {formatPrice(totalAmount)} บาท</p>
           </div>
           <p class="mb-6">รายละเอียดการสั่งซื้อจะถูกส่งไปยัง {customerEmail}</p>
 

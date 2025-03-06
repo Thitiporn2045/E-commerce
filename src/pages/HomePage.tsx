@@ -1,6 +1,10 @@
 import { products } from "../store";
 import { Layout } from "../components/Layout";
 
+const formatPrice = (price: number): string => {
+  return price.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+};
+
 export const HomePage = () => {
   return (
     <Layout title="Online Store - Home">
@@ -11,7 +15,9 @@ export const HomePage = () => {
             <div class="border rounded-lg p-4 shadow-sm">
               <h2 class="text-xl font-semibold">{product.name}</h2>
               <p class="text-gray-600 mt-2">{product.description}</p>
-              <p class="text-lg font-bold mt-2">฿ {product.price.toFixed(2)}</p>
+              <p class="text-lg font-bold mt-2">
+                ฿ {formatPrice(product.price)}
+              </p>
               <form hx-post="/create-pending-order" hx-swap="none" class="mt-4">
                 <div class="flex items-center justify-between mb-3">
                   <label for={`quantity-${product.id}`} class="text-gray-700">

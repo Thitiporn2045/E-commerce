@@ -1,5 +1,9 @@
 import { Layout } from "../components/Layout";
 
+const formatPrice = (price: number): string => {
+  return price.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+};
+
 interface OrderData {
   orderId: string;
   productId: number;
@@ -24,7 +28,7 @@ export const PaymentPage = ({ orderData }: PaymentPageProps) => {
             <h2 class="font-semibold mb-2">Order Summary</h2>
             <p class="text-sm">Order ID: #{orderData.orderId}</p>
             <p class="text-sm">
-              Amount: ฿ {Number(orderData.totalAmount).toFixed(2)}
+              Amount: ฿ {formatPrice(orderData.totalAmount)}
             </p>
           </div>
 
