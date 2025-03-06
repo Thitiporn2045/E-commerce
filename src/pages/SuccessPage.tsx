@@ -1,5 +1,5 @@
 import { Layout } from "../components/Layout";
-import { getProductById } from "../store";
+import { getProductById, removePendingOrder } from "../store";
 
 interface SuccessPageProps {
   orderId: string;
@@ -18,6 +18,9 @@ export const SuccessPage = ({
   customerName,
   customerEmail,
 }: SuccessPageProps) => {
+  // Clean up the pending order
+  removePendingOrder(orderId);
+
   const product = getProductById(productId);
 
   return (

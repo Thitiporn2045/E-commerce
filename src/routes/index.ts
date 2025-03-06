@@ -1,8 +1,9 @@
+// src/routes/index.ts
 import { Elysia, t } from "elysia";
 import { HomePage } from "../pages/HomePage";
 import { ConfirmOrderPage } from "../pages/ConfirmOrderPage";
 import { SuccessPage } from "../pages/SuccessPage";
-import { addOrder } from "../store";
+import { addOrder, createPendingOrder, getPendingOrder } from "../store";
 
 export const routes = new Elysia()
   // Home page route
@@ -10,17 +11,19 @@ export const routes = new Elysia()
     return HomePage();
   })
 
-  // Confirm order page route
+  // Create pending order and redirect to confirm page
   .post(
-    "/confirm-order",
-    ({ body }) => {
+    "/create-pending-order",
+    ({ body, set }) => {
       const productId = Number(body.productId);
       const quantity = Number(body.quantity);
 
-      return ConfirmOrderPage({
-        productId,
-        quantity,
-      });
+      // Create a pending order and get the ID
+      const orderId = createPendingOrder(productId, quantity);
+
+      // Redirect to the confirm page
+      set.headers["HX-Redirect"] = `/${orderId}/confirm-order`;
+      return null;
     },
     {
       body: t.Object({
@@ -30,15 +33,27 @@ export const routes = new Elysia()
     },
   )
 
-  // Success page route
+  // Confirm order page route with order ID
+  .get("/:orderId/confirm-order", ({ params }) => {
+    return ConfirmOrderPage({
+      orderId: params.orderId,
+    });
+  })
+
+  // Success page route with order ID
   .post(
-    "/success",
-    ({ body }) => {
-      const productId = Number(body.productId);
-      const quantity = Number(body.quantity);
+    "/:orderId/success",
+    ({ params, body }) => {
+      const pendingOrder = getPendingOrder(params.orderId);
+
+      if (!pendingOrder) {
+        return { error: "Order not found" };
+      }
+
+      const { productId, quantity } = pendingOrder;
       const totalAmount = Number(body.totalAmount);
 
-      // Create order in store
+      // Create final order in store
       const order = addOrder({
         products: [{ productId, quantity }],
         totalAmount,
@@ -47,18 +62,19 @@ export const routes = new Elysia()
       });
 
       return SuccessPage({
-        orderId: order.id,
-        productId: productId,
-        quantity: quantity,
-        totalAmount: totalAmount,
+        orderId: params.orderId,
+        productId,
+        quantity,
+        totalAmount,
         customerName: body.customerName,
         customerEmail: body.customerEmail,
       });
     },
     {
       body: t.Object({
-        productId: t.String(),
-        quantity: t.String(),
+        // Allow productId and quantity as they're coming from the form
+        productId: t.Optional(t.String()),
+        quantity: t.Optional(t.String()),
         totalAmount: t.String(),
         customerName: t.String(),
         customerEmail: t.String(),

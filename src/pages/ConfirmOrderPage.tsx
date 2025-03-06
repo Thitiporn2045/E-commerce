@@ -1,15 +1,27 @@
 import { Layout } from "../components/Layout";
-import { getProductById } from "../store";
+import { getProductById, getPendingOrder } from "../store";
 
 interface ConfirmOrderPageProps {
-  productId: number;
-  quantity: number;
+  orderId: string;
 }
 
-export const ConfirmOrderPage = ({
-  productId,
-  quantity,
-}: ConfirmOrderPageProps) => {
+export const ConfirmOrderPage = ({ orderId }: ConfirmOrderPageProps) => {
+  const pendingOrder = getPendingOrder(orderId);
+
+  if (!pendingOrder) {
+    return (
+      <Layout title="Error">
+        <div class="text-center">
+          <h1 class="text-3xl font-bold text-red-500">Order not found</h1>
+          <a href="/" class="text-blue-500 hover:underline mt-4 inline-block">
+            Back to Home
+          </a>
+        </div>
+      </Layout>
+    );
+  }
+
+  const { productId, quantity } = pendingOrder;
   const product = getProductById(productId);
 
   if (!product) {
@@ -42,7 +54,11 @@ export const ConfirmOrderPage = ({
             <p class="font-bold mt-2">Total: ${totalAmount.toFixed(2)}</p>
           </div>
 
-          <form hx-post="/success" hx-swap="innerHTML" hx-target="body">
+          <form
+            hx-post={`/${orderId}/success`}
+            hx-swap="innerHTML"
+            hx-target="body"
+          >
             <input type="hidden" name="productId" value={String(productId)} />
             <input type="hidden" name="quantity" value={String(quantity)} />
             <input

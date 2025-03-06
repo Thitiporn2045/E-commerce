@@ -12,11 +12,7 @@ export const HomePage = () => {
               <h2 class="text-xl font-semibold">{product.name}</h2>
               <p class="text-gray-600 mt-2">{product.description}</p>
               <p class="text-lg font-bold mt-2">${product.price.toFixed(2)}</p>
-              <form
-                hx-post="/confirm-order"
-                hx-swap="innerHTML"
-                hx-target="body"
-              >
+              <form hx-post="/create-pending-order" hx-swap="none">
                 <input
                   type="hidden"
                   name="productId"
