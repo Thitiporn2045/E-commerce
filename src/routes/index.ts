@@ -59,6 +59,7 @@ export const routes = new Elysia()
         totalAmount,
         customerName: body.customerName,
         customerEmail: body.customerEmail,
+        customerTel: body.customerTel, // Add this field
       });
 
       return SuccessPage({
@@ -68,6 +69,7 @@ export const routes = new Elysia()
         totalAmount,
         customerName: body.customerName,
         customerEmail: body.customerEmail,
+        customerTel: body.customerTel, // Add this field
       });
     },
     {
@@ -77,6 +79,7 @@ export const routes = new Elysia()
         quantity: t.Optional(t.String()),
         totalAmount: t.String(),
         customerName: t.String(),
+        customerTel: t.String(), // Add this field to validation
         customerEmail: t.String(),
       }),
     },
