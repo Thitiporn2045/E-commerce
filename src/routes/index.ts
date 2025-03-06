@@ -1,29 +1,61 @@
 import { Elysia, t } from "elysia";
+import { html } from "@elysiajs/html";
 import { HomePage } from "../pages/HomePage";
+import { CartPage } from "../pages/CartPage";
 import { ConfirmOrderPage } from "../pages/ConfirmOrderPage";
 import { SuccessPage } from "../pages/SuccessPage";
 import { PaymentPage } from "../pages/PaymentPage";
-import { addOrder, createPendingOrder, getPendingOrder } from "../store";
+import {
+  addOrder,
+  createPendingOrder,
+  getPendingOrder,
+  addToCart,
+  removeFromCart,
+  clearCart,
+  updateCartItem,
+  getCart,
+  getProductById,
+} from "../store";
 import { sendOrderConfirmationEmail } from "../utils/email";
+import { mkdir, writeFile } from "fs/promises";
+import { join } from "path";
+
+const ensureUploadDir = async () => {
+  try {
+    await mkdir("./uploads/payments", { recursive: true });
+  } catch (error) {
+    console.error("Error creating upload directory:", error);
+  }
+};
+
+ensureUploadDir();
 
 export const routes = new Elysia()
-  // Home page route
-  .get("/", () => {
-    return HomePage();
+  .get("/", ({ query }) => {
+    return HomePage({
+      sortBy: query.sortBy || "default",
+    });
   })
 
-  // Create pending order and redirect to confirm page
+  .get("/cart", () => {
+    return CartPage();
+  })
+
   .post(
-    "/create-pending-order",
+    "/add-to-cart",
     ({ body, set }) => {
       const productId = Number(body.productId);
       const quantity = Number(body.quantity);
+      const product = getProductById(productId);
 
-      // Create a pending order and get the ID
-      const orderId = createPendingOrder(productId, quantity);
+      addToCart(productId, quantity);
 
-      // Redirect to the confirm page
-      set.headers["HX-Redirect"] = `/${orderId}/confirm-order`;
+      // Use a simpler approach without trying to put Thai characters in headers
+      // Create a custom event with productId instead of productName
+      set.headers["HX-Trigger"] = "itemAddedToCart";
+      set.headers["HX-Trigger-product-id"] = String(productId);
+      set.headers["HX-Trigger-quantity"] = String(quantity);
+
       return null;
     },
     {
@@ -34,14 +66,79 @@ export const routes = new Elysia()
     },
   )
 
-  // Confirm order page route with order ID
+  .post(
+    "/update-cart",
+    ({ body, set }) => {
+      const productId = Number(body.productId);
+      const quantity = Number(body.quantity);
+      const product = getProductById(productId);
+
+      updateCartItem(productId, quantity);
+
+      // Simple approach for setting toast info
+      set.headers["HX-Trigger-After-Swap"] = "cartUpdated";
+      set.headers["HX-Trigger-After-Swap-message"] =
+        `Updated ${product?.name || "Product"} quantity to ${quantity}`;
+      set.headers["HX-Trigger-After-Swap-type"] = "info";
+
+      return CartPage();
+    },
+    {
+      body: t.Object({
+        productId: t.String(),
+        quantity: t.String(),
+      }),
+    },
+  )
+
+  .post(
+    "/remove-from-cart",
+    ({ body, set }) => {
+      const productId = Number(body.productId);
+      const product = getProductById(productId);
+
+      removeFromCart(productId);
+
+      // Simple approach for setting toast info
+      set.headers["HX-Trigger-After-Swap"] = "cartUpdated";
+      set.headers["HX-Trigger-After-Swap-message"] =
+        `Removed ${product?.name || "Product"} from cart`;
+      set.headers["HX-Trigger-After-Swap-type"] = "info";
+
+      return CartPage();
+    },
+    {
+      body: t.Object({
+        productId: t.String(),
+      }),
+    },
+  )
+
+  .post("/clear-cart", ({ set }) => {
+    clearCart();
+
+    // Simple approach for setting toast info
+    set.headers["HX-Trigger-After-Swap"] = "cartUpdated";
+    set.headers["HX-Trigger-After-Swap-message"] = "Cart cleared";
+    set.headers["HX-Trigger-After-Swap-type"] = "info";
+
+    return CartPage();
+  })
+
+  .post("/checkout", ({ set }) => {
+    const cart = getCart();
+    const orderId = createPendingOrder(cart);
+
+    set.headers["HX-Redirect"] = `/${orderId}/confirm-order`;
+    return null;
+  })
+
   .get("/:orderId/confirm-order", ({ params }) => {
     return ConfirmOrderPage({
       orderId: params.orderId,
     });
   })
 
-  // Process order details and show payment page
   .post(
     "/:orderId/success",
     ({ params, body }) => {
@@ -51,14 +148,13 @@ export const routes = new Elysia()
         return { error: "Order not found" };
       }
 
-      const { productId, quantity } = pendingOrder;
       const totalAmount = Number(body.totalAmount);
 
-      // Prepare order data for payment page
+      // Convert pendingOrder to match OrderData interface structure
       const orderData = {
         orderId: params.orderId,
-        productId,
-        quantity,
+        productId: pendingOrder.productId,
+        quantity: pendingOrder.quantity,
         totalAmount,
         customerName: body.customerName,
         customerEmail: body.customerEmail,
@@ -69,8 +165,6 @@ export const routes = new Elysia()
     },
     {
       body: t.Object({
-        productId: t.Optional(t.String()),
-        quantity: t.Optional(t.String()),
         totalAmount: t.String(),
         customerName: t.String(),
         customerTel: t.String(),
@@ -79,24 +173,40 @@ export const routes = new Elysia()
     },
   )
 
-  // Complete the order after payment
   .post(
     "/:orderId/complete",
     async ({ params, body }) => {
+      const totalAmount = Number(body.totalAmount);
       const productId = Number(body.productId);
       const quantity = Number(body.quantity);
-      const totalAmount = Number(body.totalAmount);
 
-      // Create final order in store
-      const order = addOrder({
+      let paymentProofPath: string | undefined = undefined;
+      if (body.paymentProof) {
+        try {
+          const fileExt = body.paymentProof.name.split(".").pop() || "jpg";
+          const fileName = `payment_${params.orderId}.${fileExt}`;
+          const filePath = join("./uploads/payments", fileName);
+
+          await writeFile(
+            filePath,
+            Buffer.from(await body.paymentProof.arrayBuffer()),
+          );
+          paymentProofPath = `/uploads/payments/${fileName}`;
+          console.log(`Payment proof saved at: ${filePath}`);
+        } catch (error) {
+          console.error("Error saving payment proof:", error);
+        }
+      }
+
+      addOrder({
         products: [{ productId, quantity }],
         totalAmount,
         customerName: body.customerName,
         customerEmail: body.customerEmail,
         customerTel: body.customerTel,
+        paymentProofPath,
       });
 
-      // Send order confirmation email
       try {
         await sendOrderConfirmationEmail(
           params.orderId,
@@ -122,13 +232,13 @@ export const routes = new Elysia()
     },
     {
       body: t.Object({
-        orderId: t.String(),
         productId: t.String(),
         quantity: t.String(),
         totalAmount: t.String(),
         customerName: t.String(),
         customerEmail: t.String(),
         customerTel: t.String(),
+        paymentProof: t.Optional(t.Any()),
       }),
     },
   );

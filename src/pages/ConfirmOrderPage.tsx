@@ -25,14 +25,20 @@ export const ConfirmOrderPage = ({ orderId }: ConfirmOrderPageProps) => {
     );
   }
 
-  const { productId, quantity } = pendingOrder;
-  const product = getProductById(productId);
+  // Type guard to check if pendingOrder has items property
+  interface PendingOrderWithItems {
+    productId: number;
+    quantity: number;
+    items?: Array<{ productId: number; quantity: number }>;
+  }
 
-  if (!product) {
+  const orderWithItems = pendingOrder as PendingOrderWithItems;
+
+  if (!orderWithItems.items || orderWithItems.items.length === 0) {
     return (
       <Layout title="Error">
         <div class="text-center">
-          <h1 class="text-3xl font-bold text-red-500">Product not found</h1>
+          <h1 class="text-3xl font-bold text-red-500">No items in order</h1>
           <a href="/" class="text-blue-500 hover:underline mt-4 inline-block">
             Back to Home
           </a>
@@ -41,7 +47,13 @@ export const ConfirmOrderPage = ({ orderId }: ConfirmOrderPageProps) => {
     );
   }
 
-  const totalAmount = product.price * quantity;
+  const totalAmount = orderWithItems.items.reduce(
+    (total: number, item: { productId: number; quantity: number }) => {
+      const product = getProductById(item.productId);
+      return total + (product?.price || 0) * item.quantity;
+    },
+    0,
+  );
 
   return (
     <Layout title="Confirm Order">
@@ -64,13 +76,32 @@ export const ConfirmOrderPage = ({ orderId }: ConfirmOrderPageProps) => {
           </div>
           <h2 class="text-xl font-semibold mt-4">สรุปรายการสั่งซื้อ</h2>
           <div class="mb-4 mt-4">
-            <h2 class=" font-medium">{product.name}</h2>
-            <p class="text-gray-600">{product.description}</p>
+            {orderWithItems.items.map(
+              (item: { productId: number; quantity: number }) => {
+                const product = getProductById(item.productId);
+                if (!product) return null;
+                const itemTotal = product.price * item.quantity;
 
-            <p class="mt-2">
-              Price: ฿ {formatPrice(product.price)} x {quantity}
-            </p>
-            <p class="font-bold mt-2">Total: ฿ {formatPrice(totalAmount)}</p>
+                return (
+                  <div class="mb-4">
+                    <h2 class="font-medium">{product.name}</h2>
+                    <p class="text-gray-600">{product.description}</p>
+                    <p class="mt-2">
+                      Price: {formatPrice(product.price)} ฿ x {item.quantity}{" "}
+                      unit(s)
+                    </p>
+                    <p class="font-bold mt-2">
+                      Subtotal: {formatPrice(itemTotal)} ฿
+                    </p>
+                  </div>
+                );
+              },
+            )}
+            <div class="border-t pt-4 mt-4">
+              <p class="font-bold text-lg">
+                Total: {formatPrice(totalAmount)} ฿
+              </p>
+            </div>
           </div>
 
           <form
@@ -78,8 +109,22 @@ export const ConfirmOrderPage = ({ orderId }: ConfirmOrderPageProps) => {
             hx-swap="innerHTML"
             hx-target="body"
           >
-            <input type="hidden" name="productId" value={String(productId)} />
-            <input type="hidden" name="quantity" value={String(quantity)} />
+            {orderWithItems.items.map(
+              (item: { productId: number; quantity: number }) => (
+                <>
+                  <input
+                    type="hidden"
+                    name="productId"
+                    value={String(item.productId)}
+                  />
+                  <input
+                    type="hidden"
+                    name="quantity"
+                    value={String(item.quantity)}
+                  />
+                </>
+              ),
+            )}
             <input
               type="hidden"
               name="totalAmount"

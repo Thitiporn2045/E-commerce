@@ -64,9 +64,9 @@ export const sendOrderConfirmationEmail = async (
               <td style="padding: 12px 0; border-bottom: 1px solid #e5e7eb; text-align: center;">${
                 product.quantity
               }</td>
-              <td style="padding: 12px 0; border-bottom: 1px solid #e5e7eb; text-align: right;">$${formatPrice(
+              <td style="padding: 12px 0; border-bottom: 1px solid #e5e7eb; text-align: right;">${formatPrice(
                 getProductById(product.productId)?.price || 0,
-              )}</td>
+              )} ฿ </td>
             </tr>
           `;
     })
@@ -122,9 +122,9 @@ export const sendOrderConfirmationEmail = async (
                       <tfoot>
                         <tr>
                           <td colspan="2" style="padding-top: 20px; text-align: right;"><strong>Total:</strong></td>
-                          <td style="padding-top: 20px; text-align: right;"><strong>$${formatPrice(
+                          <td style="padding-top: 20px; text-align: right;"><strong>${formatPrice(
                             totalAmount,
-                          )}</strong></td>
+                          )} ฿ </strong></td>
                         </tr>
                       </tfoot>
                     </table>
@@ -155,7 +155,6 @@ export const sendOrderConfirmationEmail = async (
       </html>
     `;
 
-  // Simple text version as fallback
   const text = `
       Thank you for your order, ${customerName}!
 
@@ -171,7 +170,7 @@ export const sendOrderConfirmationEmail = async (
         })
         .join("\n")}
 
-      Total Amount: ฿ ${formatPrice(totalAmount)}
+      Total Amount: ${formatPrice(totalAmount)} ฿
 
       We'll let you know when your order ships.
 

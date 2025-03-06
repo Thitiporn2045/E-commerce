@@ -28,7 +28,7 @@ export const PaymentPage = ({ orderData }: PaymentPageProps) => {
             <h2 class="font-semibold mb-2">Order Summary</h2>
             <p class="text-sm">Order ID: #{orderData.orderId}</p>
             <p class="text-sm">
-              Amount: ฿ {formatPrice(orderData.totalAmount)}
+              Amount: {formatPrice(orderData.totalAmount)} ฿
             </p>
           </div>
 
@@ -44,6 +44,7 @@ export const PaymentPage = ({ orderData }: PaymentPageProps) => {
             hx-post={`/${orderData.orderId}/complete`}
             hx-swap="innerHTML"
             hx-target="body"
+            enctype="multipart/form-data"
           >
             <input type="hidden" name="orderId" value={orderData.orderId} />
             <input
@@ -77,6 +78,33 @@ export const PaymentPage = ({ orderData }: PaymentPageProps) => {
               value={orderData.customerTel}
             />
 
+            <div class="mb-6 mt-6">
+              <label class="block text-gray-700 mb-2 font-medium">
+                Upload Payment Proof
+              </label>
+              <div class="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
+                <div class="mb-3" id="preview-container"></div>
+                <input
+                  type="file"
+                  name="paymentProof"
+                  id="payment-proof"
+                  accept="image/*"
+                  required
+                  class="hidden"
+                  onchange="previewImage(this)"
+                />
+                <label
+                  for="payment-proof"
+                  class="bg-blue-100 text-blue-800 py-2 px-4 rounded cursor-pointer hover:bg-blue-200 inline-block"
+                >
+                  Select Image
+                </label>
+                <p class="text-sm text-gray-500 mt-2">
+                  Please upload a screenshot of your payment
+                </p>
+              </div>
+            </div>
+
             <button
               class="mt-4 bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded w-full"
               type="submit"
@@ -86,6 +114,26 @@ export const PaymentPage = ({ orderData }: PaymentPageProps) => {
           </form>
         </div>
       </div>
+
+      <script>{`
+        function previewImage(input) {
+          const previewContainer = document.getElementById('preview-container');
+          previewContainer.innerHTML = '';
+
+          if (input.files && input.files[0]) {
+            const reader = new FileReader();
+
+            reader.onload = function(e) {
+              const img = document.createElement('img');
+              img.src = e.target.result;
+              img.className = 'max-h-48 mx-auto rounded-lg mb-3';
+              previewContainer.appendChild(img);
+            }
+
+            reader.readAsDataURL(input.files[0]);
+          }
+        }
+      `}</script>
     </Layout>
   );
 };

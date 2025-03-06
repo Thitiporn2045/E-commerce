@@ -5,11 +5,17 @@ export interface Product {
   description: string;
 }
 
+export interface CartItem {
+  productId: number;
+  quantity: number;
+}
+
 export interface Order {
   id: string;
   products: Array<{ productId: number; quantity: number }>;
   totalAmount: number;
   customerName: string;
   customerEmail: string;
-  customerTel: string; // Add this field
+  customerTel: string;
+  paymentProofPath?: string;
 }

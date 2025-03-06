@@ -1,4 +1,4 @@
-import { Product, Order } from "../types";
+import { Product, Order, CartItem } from "../types";
 
 // In-memory storage for server-side rendering
 const memoryStorage: Record<string, any> = {};
@@ -157,13 +157,57 @@ export function getProductById(id: number): Product | undefined {
   return products.find((product) => product.id === id);
 }
 
+// New cart-related functions
+export function getCart(): CartItem[] {
+  return getFromStorage<CartItem[]>("cart", []);
+}
+
+export function addToCart(productId: number, quantity: number): void {
+  const cart = getCart();
+  const existingItem = cart.find((item) => item.productId === productId);
+
+  if (existingItem) {
+    existingItem.quantity += quantity;
+  } else {
+    cart.push({ productId, quantity });
+  }
+
+  saveToStorage("cart", cart);
+}
+
+export function updateCartItem(productId: number, quantity: number): void {
+  const cart = getCart();
+  const existingItem = cart.find((item) => item.productId === productId);
+
+  if (existingItem) {
+    existingItem.quantity = quantity;
+    saveToStorage("cart", cart);
+  }
+}
+
+export function removeFromCart(productId: number): void {
+  const cart = getCart();
+  const updatedCart = cart.filter((item) => item.productId !== productId);
+  saveToStorage("cart", updatedCart);
+}
+
+export function clearCart(): void {
+  saveToStorage("cart", []);
+}
+
+export function getCartTotal(): number {
+  const cart = getCart();
+  return cart.reduce((total, item) => {
+    const product = getProductById(item.productId);
+    return total + (product ? product.price * item.quantity : 0);
+  }, 0);
+}
+
 export function createPendingOrder(
-  productId: number,
-  quantity: number,
+  items: Array<{ productId: number; quantity: number }>,
 ): string {
   const id = Math.random().toString(36).substring(2, 15);
-  const pendingOrder = { productId, quantity, id };
-  saveToStorage(`pending_order_${id}`, pendingOrder);
+  saveToStorage(`pending_order_${id}`, { items, id });
   return id;
 }
 
