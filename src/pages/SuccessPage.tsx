@@ -40,7 +40,7 @@ export const SuccessPage = ({
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 24 24"
               fill="currentColor"
-              class="size-8 text-green-600"
+              class="size-2 text-green-600 w-1/4"
             >
               <path
                 fill-rule="evenodd"
