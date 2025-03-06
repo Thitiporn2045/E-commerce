@@ -7,9 +7,12 @@
   },
   "dependencies": {
     "@elysiajs/html": "^0.8.0",
-    "elysia": "latest"
+    "dotenv": "^16.4.7",
+    "elysia": "latest",
+    "nodemailer": "^6.10.0"
   },
   "devDependencies": {
+    "@types/nodemailer": "^6.4.17",
     "bun-types": "latest"
   },
   "module": "src/index.js"
