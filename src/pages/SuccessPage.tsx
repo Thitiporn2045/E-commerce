@@ -32,7 +32,7 @@ export const SuccessPage = ({
     <Layout title="Order Success">
       <div class="max-w-md mx-auto text-center">
         <div class="bg-green-100 p-6 rounded-lg border border-green-200">
-          <div class="flex-col items-center space-x-2 justify-center">
+          <div class="flex items-center space-x-2 justify-center">
             <h1 class="text-3xl font-bold text-green-600">
               คำสั่งซื้อเสร็จสมบูรณ์
             </h1>
@@ -40,7 +40,7 @@ export const SuccessPage = ({
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 24 24"
               fill="currentColor"
-              class="size-2 text-green-600"
+              class="size-2 text-green-600 w-1/4"
             >
               <path
                 fill-rule="evenodd"
