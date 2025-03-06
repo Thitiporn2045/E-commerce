@@ -24,7 +24,7 @@ export const PaymentPage = ({ orderData }: PaymentPageProps) => {
             <h2 class="font-semibold mb-2">Order Summary</h2>
             <p class="text-sm">Order ID: #{orderData.orderId}</p>
             <p class="text-sm">
-              Amount: ${Number(orderData.totalAmount).toFixed(2)}
+              Amount: ฿ {Number(orderData.totalAmount).toFixed(2)}
             </p>
           </div>
 

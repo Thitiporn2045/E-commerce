@@ -66,7 +66,7 @@ export const ConfirmOrderPage = ({ orderId }: ConfirmOrderPageProps) => {
             <p class="mt-2">
               Price: ${product.price.toFixed(2)} x {quantity}
             </p>
-            <p class="font-bold mt-2">Total: ${totalAmount.toFixed(2)}</p>
+            <p class="font-bold mt-2">Total: ฿ {totalAmount.toFixed(2)}</p>
           </div>
 
           <form
