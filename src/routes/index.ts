@@ -150,11 +150,15 @@ export const routes = new Elysia()
 
       const totalAmount = Number(body.totalAmount);
 
-      // Convert pendingOrder to match OrderData interface structure
+      // Create orderData with the first product if multiple products are sent
       const orderData = {
         orderId: params.orderId,
-        productId: pendingOrder.productId,
-        quantity: pendingOrder.quantity,
+        productId: Array.isArray(body.productId)
+          ? Number(body.productId[0])
+          : Number(body.productId),
+        quantity: Array.isArray(body.quantity)
+          ? Number(body.quantity[0])
+          : Number(body.quantity),
         totalAmount,
         customerName: body.customerName,
         customerEmail: body.customerEmail,
@@ -165,6 +169,8 @@ export const routes = new Elysia()
     },
     {
       body: t.Object({
+        productId: t.Union([t.String(), t.Array(t.String())]),
+        quantity: t.Union([t.String(), t.Array(t.String())]),
         totalAmount: t.String(),
         customerName: t.String(),
         customerTel: t.String(),
@@ -177,8 +183,12 @@ export const routes = new Elysia()
     "/:orderId/complete",
     async ({ params, body }) => {
       const totalAmount = Number(body.totalAmount);
-      const productId = Number(body.productId);
-      const quantity = Number(body.quantity);
+      const productIds = Array.isArray(body.productId)
+        ? body.productId.map(Number)
+        : [Number(body.productId)];
+      const quantities = Array.isArray(body.quantity)
+        ? body.quantity.map(Number)
+        : [Number(body.quantity)];
 
       let paymentProofPath: string | undefined = undefined;
       if (body.paymentProof) {
@@ -198,8 +208,14 @@ export const routes = new Elysia()
         }
       }
 
+      // Create products array for the order
+      const products = productIds.map((productId, index) => ({
+        productId,
+        quantity: quantities[index],
+      }));
+
       addOrder({
-        products: [{ productId, quantity }],
+        products,
         totalAmount,
         customerName: body.customerName,
         customerEmail: body.customerEmail,
@@ -213,7 +229,7 @@ export const routes = new Elysia()
           body.customerName,
           body.customerEmail,
           totalAmount,
-          [{ productId, quantity }],
+          products,
         );
         console.log("Order confirmation email sent successfully");
       } catch (error) {
@@ -222,8 +238,8 @@ export const routes = new Elysia()
 
       return SuccessPage({
         orderId: params.orderId,
-        productId,
-        quantity,
+        productId: productIds[0], // Use first product for display
+        quantity: quantities[0], // Use first quantity for display
         totalAmount,
         customerName: body.customerName,
         customerEmail: body.customerEmail,
@@ -232,8 +248,9 @@ export const routes = new Elysia()
     },
     {
       body: t.Object({
-        productId: t.String(),
-        quantity: t.String(),
+        orderId: t.String(),
+        productId: t.Union([t.String(), t.Array(t.String())]),
+        quantity: t.Union([t.String(), t.Array(t.String())]),
         totalAmount: t.String(),
         customerName: t.String(),
         customerEmail: t.String(),
