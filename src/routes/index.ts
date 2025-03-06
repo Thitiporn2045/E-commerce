@@ -1,9 +1,10 @@
-// src/routes/index.ts
 import { Elysia, t } from "elysia";
 import { HomePage } from "../pages/HomePage";
 import { ConfirmOrderPage } from "../pages/ConfirmOrderPage";
 import { SuccessPage } from "../pages/SuccessPage";
+import { PaymentPage } from "../pages/PaymentPage";
 import { addOrder, createPendingOrder, getPendingOrder } from "../store";
+import { sendOrderConfirmationEmail } from "../utils/email";
 
 export const routes = new Elysia()
   // Home page route
@@ -40,7 +41,7 @@ export const routes = new Elysia()
     });
   })
 
-  // Success page route with order ID
+  // Process order details and show payment page
   .post(
     "/:orderId/success",
     ({ params, body }) => {
@@ -53,13 +54,61 @@ export const routes = new Elysia()
       const { productId, quantity } = pendingOrder;
       const totalAmount = Number(body.totalAmount);
 
+      // Prepare order data for payment page
+      const orderData = {
+        orderId: params.orderId,
+        productId,
+        quantity,
+        totalAmount,
+        customerName: body.customerName,
+        customerEmail: body.customerEmail,
+        customerTel: body.customerTel,
+      };
+
+      return PaymentPage({ orderData });
+    },
+    {
+      body: t.Object({
+        productId: t.Optional(t.String()),
+        quantity: t.Optional(t.String()),
+        totalAmount: t.String(),
+        customerName: t.String(),
+        customerTel: t.String(),
+        customerEmail: t.String(),
+      }),
+    },
+  )
+
+  // Complete the order after payment
+  .post(
+    "/:orderId/complete",
+    async ({ params, body }) => {
+      const productId = Number(body.productId);
+      const quantity = Number(body.quantity);
+      const totalAmount = Number(body.totalAmount);
+
       // Create final order in store
       const order = addOrder({
         products: [{ productId, quantity }],
         totalAmount,
         customerName: body.customerName,
         customerEmail: body.customerEmail,
+        customerTel: body.customerTel,
       });
+
+      // Send order confirmation email
+      try {
+        await sendOrderConfirmationEmail(
+          params.orderId,
+          body.customerName,
+          body.customerEmail,
+          totalAmount,
+          [{ productId, quantity }],
+        );
+        console.log("Order confirmation email sent successfully");
+      } catch (error) {
+        console.error("Error sending order confirmation email:", error);
+      }
 
       return SuccessPage({
         orderId: params.orderId,
@@ -68,16 +117,18 @@ export const routes = new Elysia()
         totalAmount,
         customerName: body.customerName,
         customerEmail: body.customerEmail,
+        customerTel: body.customerTel,
       });
     },
     {
       body: t.Object({
-        // Allow productId and quantity as they're coming from the form
-        productId: t.Optional(t.String()),
-        quantity: t.Optional(t.String()),
+        orderId: t.String(),
+        productId: t.String(),
+        quantity: t.String(),
         totalAmount: t.String(),
         customerName: t.String(),
         customerEmail: t.String(),
+        customerTel: t.String(),
       }),
     },
   );

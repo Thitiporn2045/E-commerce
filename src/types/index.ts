@@ -11,4 +11,5 @@ export interface Order {
   totalAmount: number;
   customerName: string;
   customerEmail: string;
+  customerTel: string; // Add this field
 }
