@@ -58,13 +58,25 @@ export const Layout = ({ children, title = "Online Store" }: LayoutProps) => {
 
         {/* Script for handling toast events */}
         <script>{`
+          // Toast counter to ensure unique IDs and proper stacking
+          let toastCounter = 0;
+
           // Function to create a toast notification
           function createToast(message, type = 'info', duration = 3000) {
+            const toastId = 'toast-' + (toastCounter++);
             const toast = document.createElement('div');
-            toast.id = 'toast-' + Date.now();
-            toast.className = 'fixed bottom-4 right-4 text-white px-6 py-3 rounded-md shadow-lg transform transition-all duration-300 flex items-center opacity-0';
+            toast.id = toastId;
+            toast.className = 'fixed text-white px-6 py-3 rounded-md shadow-lg transform transition-all duration-300 flex items-center opacity-0';
             toast.style.zIndex = '9999';
             toast.style.transform = 'translateY(100%)';
+            toast.style.right = '1rem'; // 4px in Tailwind
+
+            // Calculate bottom position based on existing toasts
+            const existingToasts = document.querySelectorAll('[id^="toast-"]');
+            const bottomOffset = 16; // 1rem in pixels
+            const toastHeight = 60; // Approximate height of a toast in pixels
+            const bottomPosition = bottomOffset + (existingToasts.length * (toastHeight + 8)); // 8px gap between toasts
+            toast.style.bottom = bottomPosition + 'px';
 
             // Set the background color based on type
             if (type === 'success') {
@@ -87,8 +99,20 @@ export const Layout = ({ children, title = "Online Store" }: LayoutProps) => {
 
             toast.innerHTML = icon + message;
 
-            // Append the toast to the document
-            document.body.appendChild(toast);
+            // Create a container for toasts if it doesn't exist
+            let toastContainer = document.getElementById('toast-container');
+            if (!toastContainer) {
+              toastContainer = document.createElement('div');
+              toastContainer.id = 'toast-container';
+              toastContainer.style.position = 'fixed';
+              toastContainer.style.bottom = '0';
+              toastContainer.style.right = '0';
+              toastContainer.style.zIndex = '9998';
+              document.body.appendChild(toastContainer);
+            }
+
+            // Append the toast to the container
+            toastContainer.appendChild(toast);
 
             // Animate the toast in
             setTimeout(() => {
@@ -102,10 +126,23 @@ export const Layout = ({ children, title = "Online Store" }: LayoutProps) => {
               toast.classList.remove('opacity-100');
               toast.classList.add('opacity-0');
 
+              // After animation completes, remove the element and adjust other toasts
               setTimeout(() => {
+                const removedHeight = toast.offsetHeight + 8; // Height + margin
                 toast.remove();
+
+                // Adjust positions of toasts above the removed one
+                const remainingToasts = document.querySelectorAll('[id^="toast-"]');
+                remainingToasts.forEach(t => {
+                  const currentBottom = parseInt(t.style.bottom, 10);
+                  if (currentBottom > bottomPosition) {
+                    t.style.bottom = (currentBottom - removedHeight) + 'px';
+                  }
+                });
               }, 300);
             }, duration);
+
+            return toast;
           }
 
           // Listen for the itemAddedToCart event
@@ -122,8 +159,25 @@ export const Layout = ({ children, title = "Online Store" }: LayoutProps) => {
                 productName = productEl.querySelector('.product-name').textContent;
               }
 
-              // Create the toast
               createToast(\`Added \${quantity} \${productName} to cart\`, 'success');
+            }
+
+            // Try to parse potential JSON triggers
+            try {
+              const triggerHeader = event.detail.headers && event.detail.headers['HX-Trigger'];
+              if (triggerHeader && triggerHeader.startsWith('{')) {
+                const triggers = JSON.parse(triggerHeader);
+                if (triggers.itemAddedToCart) {
+                  const data = triggers.itemAddedToCart;
+                  createToast(\`Added \${data.quantity} \${data.name} to cart\`, 'success');
+                }
+                if (triggers.cartUpdated) {
+                  const data = triggers.cartUpdated;
+                  createToast(data.message || 'Cart updated', data.type || 'info');
+                }
+              }
+            } catch (e) {
+              console.log('Error parsing HX-Trigger JSON:', e);
             }
           });
 
@@ -137,13 +191,13 @@ export const Layout = ({ children, title = "Online Store" }: LayoutProps) => {
             }
           });
 
-          // Additionally listen for direct trigger events (for backward compatibility)
+          // Additionally listen for direct trigger events
           document.body.addEventListener('htmx:trigger', function(event) {
             if (event.detail.name === 'cartUpdated') {
-              const message = event.detail.headers ?
-                (event.detail.headers['HX-Trigger-After-Swap-message'] || 'Cart updated') : 'Cart updated';
-              const type = event.detail.headers ?
-                (event.detail.headers['HX-Trigger-After-Swap-type'] || 'info') : 'info';
+              const message = event.detail.detail && event.detail.detail.message ?
+                event.detail.detail.message : 'Cart updated';
+              const type = event.detail.detail && event.detail.detail.type ?
+                event.detail.detail.type : 'info';
               createToast(message, type);
             }
           });
