@@ -58,25 +58,7 @@ export const Layout = ({ children, title = "Online Store" }: LayoutProps) => {
 
         {/* Script for handling toast events */}
         <script>{`
-          // Listen for the itemAddedToCart event
-          document.body.addEventListener('htmx:trigger', function(event) {
-            if (event.detail.name === 'itemAddedToCart') {
-              const productId = event.detail.headers['HX-Trigger-product-id'];
-              const quantity = event.detail.headers['HX-Trigger-quantity'] || '1';
-
-              // Find the product name in the page
-              let productName = 'Product';
-              const productEl = document.querySelector(\`[data-product-id="\${productId}"]\`);
-              if (productEl) {
-                productName = productEl.querySelector('.product-name').textContent;
-              }
-
-              // Create the toast
-              createToast(\`Added \${quantity} \${productName} to cart\`, 'success');
-            }
-          });
-
-          // Function to create a toast
+          // Function to create a toast notification
           function createToast(message, type = 'info', duration = 3000) {
             const toast = document.createElement('div');
             toast.id = 'toast-' + Date.now();
@@ -126,12 +108,43 @@ export const Layout = ({ children, title = "Online Store" }: LayoutProps) => {
             }, duration);
           }
 
-          // For cart updates
-          document.body.addEventListener('htmx:trigger', function(event) {
-            if (event.detail.name === 'cartUpdated') {
+          // Listen for the itemAddedToCart event
+          document.body.addEventListener('htmx:afterRequest', function(event) {
+            // Check if the event has the itemAddedToCart trigger
+            if (event.detail.headers && event.detail.headers['HX-Trigger'] === 'itemAddedToCart') {
+              const productId = event.detail.headers['HX-Trigger-product-id'];
+              const quantity = event.detail.headers['HX-Trigger-quantity'] || '1';
+
+              // Find the product name in the page
+              let productName = 'Product';
+              const productEl = document.querySelector(\`[data-product-id="\${productId}"]\`);
+              if (productEl) {
+                productName = productEl.querySelector('.product-name').textContent;
+              }
+
+              // Create the toast
+              createToast(\`Added \${quantity} \${productName} to cart\`, 'success');
+            }
+          });
+
+          // Listen for after-swap events specifically for cartUpdated
+          document.body.addEventListener('htmx:afterSwap', function(event) {
+            // Check headers for the cartUpdated trigger
+            if (event.detail.headers && event.detail.headers['HX-Trigger-After-Swap'] === 'cartUpdated') {
               const message = event.detail.headers['HX-Trigger-After-Swap-message'] || 'Cart updated';
               const type = event.detail.headers['HX-Trigger-After-Swap-type'] || 'info';
-              createToast(message, type, 2000);
+              createToast(message, type);
+            }
+          });
+
+          // Additionally listen for direct trigger events (for backward compatibility)
+          document.body.addEventListener('htmx:trigger', function(event) {
+            if (event.detail.name === 'cartUpdated') {
+              const message = event.detail.headers ?
+                (event.detail.headers['HX-Trigger-After-Swap-message'] || 'Cart updated') : 'Cart updated';
+              const type = event.detail.headers ?
+                (event.detail.headers['HX-Trigger-After-Swap-type'] || 'info') : 'info';
+              createToast(message, type);
             }
           });
         `}</script>

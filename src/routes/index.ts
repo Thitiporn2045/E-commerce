@@ -50,8 +50,7 @@ export const routes = new Elysia()
 
       addToCart(productId, quantity);
 
-      // Use a simpler approach without trying to put Thai characters in headers
-      // Create a custom event with productId instead of productName
+      // Improved trigger for toasts
       set.headers["HX-Trigger"] = "itemAddedToCart";
       set.headers["HX-Trigger-product-id"] = String(productId);
       set.headers["HX-Trigger-quantity"] = String(quantity);
@@ -75,11 +74,13 @@ export const routes = new Elysia()
 
       updateCartItem(productId, quantity);
 
-      // Simple approach for setting toast info
-      set.headers["HX-Trigger-After-Swap"] = "cartUpdated";
-      set.headers["HX-Trigger-After-Swap-message"] =
-        `Updated ${product?.name || "Product"} quantity to ${quantity}`;
-      set.headers["HX-Trigger-After-Swap-type"] = "info";
+      // Use HX-Trigger directly with JSON data
+      set.headers["HX-Trigger"] = JSON.stringify({
+        cartUpdated: {
+          message: `Updated ${product?.name || "Product"} quantity to ${quantity}`,
+          type: "info",
+        },
+      });
 
       return CartPage();
     },
@@ -99,11 +100,13 @@ export const routes = new Elysia()
 
       removeFromCart(productId);
 
-      // Simple approach for setting toast info
-      set.headers["HX-Trigger-After-Swap"] = "cartUpdated";
-      set.headers["HX-Trigger-After-Swap-message"] =
-        `Removed ${product?.name || "Product"} from cart`;
-      set.headers["HX-Trigger-After-Swap-type"] = "info";
+      // Use HX-Trigger directly with JSON data
+      set.headers["HX-Trigger"] = JSON.stringify({
+        cartUpdated: {
+          message: `Removed ${product?.name || "Product"} from cart`,
+          type: "info",
+        },
+      });
 
       return CartPage();
     },
@@ -117,10 +120,13 @@ export const routes = new Elysia()
   .post("/clear-cart", ({ set }) => {
     clearCart();
 
-    // Simple approach for setting toast info
-    set.headers["HX-Trigger-After-Swap"] = "cartUpdated";
-    set.headers["HX-Trigger-After-Swap-message"] = "Cart cleared";
-    set.headers["HX-Trigger-After-Swap-type"] = "info";
+    // Use HX-Trigger directly with JSON data
+    set.headers["HX-Trigger"] = JSON.stringify({
+      cartUpdated: {
+        message: "Cart cleared",
+        type: "info",
+      },
+    });
 
     return CartPage();
   })
