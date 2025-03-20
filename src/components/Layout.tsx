@@ -24,7 +24,7 @@ export const Layout = ({ children, title = "Online Store" }: LayoutProps) => {
         `}</style>
       </head>
       <body class="bg-gray-100 min-h-screen">
-      <header class="bg-gradient-to-r from-gray-900 to-gray-800 shadow-sm">
+      <header class="bg-gradient-to-r from-gray-900 to-gray-800 shadow-sm sticky top-0 z-50">
           <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
             <a href="/" class="font-bold text-xl text-white">
               ODTS RETAIL
