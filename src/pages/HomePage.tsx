@@ -132,7 +132,7 @@ export const HomePage = ({ sortBy = "default" }: HomePageProps) => {
                     type="submit"
                     onclick={`createToast('Added ${product.name} to your collection', 'success')`}
                   >
-                    Add to Collection
+                    Add to Cart
                   </button>
                 </form>
               </div>
