@@ -16,6 +16,7 @@ export const Layout = ({ children, title = "Online Store" }: LayoutProps) => {
         />
         <script src="https://unpkg.com/htmx.org@1.9.10"></script>
         <script src="https://unpkg.com/hyperscript.org@0.9.12"></script>
+        <script src="https://unpkg.com/htmx.org@1.9.6"></script>
         <style>{`
           /* Add any custom styles here */
           .opacity-0 { opacity: 0; }
@@ -23,14 +24,14 @@ export const Layout = ({ children, title = "Online Store" }: LayoutProps) => {
         `}</style>
       </head>
       <body class="bg-gray-100 min-h-screen">
-        <header class="bg-white shadow-sm">
+      <header class="bg-gradient-to-r from-gray-900 to-gray-800 shadow-sm">
           <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-            <a href="/" class="font-bold text-xl text-blue-600">
+            <a href="/" class="font-bold text-xl text-white">
               ODTS RETAIL
             </a>
             <a
               href="/cart"
-              class="bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded flex items-center gap-2"
+              class="bg-white hover:bg-amber-500 text-gray py-2 px-4 rounded flex items-center gap-2"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"

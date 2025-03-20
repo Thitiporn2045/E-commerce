@@ -23,48 +23,37 @@ export const HomePage = ({ sortBy = "default" }: HomePageProps) => {
   }
 
   return (
-    <Layout title="Online Store - Home">
-      <div>
-        <div class="flex justify-between items-center mb-6">
-          <h1 class="text-3xl font-bold">Products</h1>
+    <Layout title="Luxury Collection - Exclusive Products">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Hero Section */}
+        <div className="bg-gradient-to-r from-gray-900 to-gray-800 rounded-lg shadow-xl mb-12 overflow-hidden">
+          <div className="px-8 py-16 text-center">
+            <h1 className="text-4xl md:text-5xl font-serif font-light text-white mb-4">Luxury Collection</h1>
+            <p className="text-gray-300 text-lg max-w-2xl mx-auto">Experience the pinnacle of sophistication with our handpicked premium products.</p>
+          </div>
+        </div>
 
-          <div class="flex items-center gap-4">
-            {/* Add Cart Button */}
-            {/* <a
-              href="/cart"
-              class="bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded flex items-center gap-2"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                class="h-5 w-5"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-              >
-                <path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3zM16 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM6.5 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3z" />
-              </svg>
-              Cart
-            </a> */}
+        <div className="flex flex-col md:flex-row justify-between items-center mb-10">
+          <h2 className="text-3xl font-serif font-light text-gray-800 mb-4 md:mb-0">Exclusive Offerings</h2>
 
-            <div class="flex items-center">
-              <label for="sort" class="mr-2 text-gray-700">
-                Sort by:
-              </label>
+          <div className="flex items-center gap-4">
+            <div className="relative">
               <select
                 id="sort"
-                class="border rounded py-1 px-3 bg-white"
+                className="appearance-none border-b border-gray-400 py-2 pl-3 pr-10 bg-transparent font-serif text-gray-700 focus:outline-none focus:border-gray-900"
                 hx-get="/"
                 hx-target="body"
                 hx-swap="outerHTML"
                 name="sortBy"
               >
                 <option value="default" selected={sortBy === "default"}>
-                  Default
+                  Curated Selection
                 </option>
                 <option value="price-asc" selected={sortBy === "price-asc"}>
-                  Price (Low to High)
+                  Price (Ascending)
                 </option>
                 <option value="price-desc" selected={sortBy === "price-desc"}>
-                  Price (High to Low)
+                  Price (Descending)
                 </option>
                 <option value="name-asc" selected={sortBy === "name-asc"}>
                   Name (A-Z)
@@ -73,65 +62,80 @@ export const HomePage = ({ sortBy = "default" }: HomePageProps) => {
                   Name (Z-A)
                 </option>
               </select>
+              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                  <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+                </svg>
+              </div>
             </div>
           </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {sortedProducts.map((product) => (
             <div
-              class="border rounded-lg p-4 shadow-sm product-item"
+              className="bg-white rounded-lg overflow-hidden shadow-lg border border-gray-100 hover:shadow-2xl transition-shadow duration-300 product-item"
               data-product-id={String(product.id)}
             >
-              <h2 class="text-xl font-semibold product-name">{product.name}</h2>
-              <p class="text-gray-600 mt-2">{product.description}</p>
-              <p class="text-lg font-bold mt-2">
-                {formatPrice(product.price)} ฿
-              </p>
-              <form hx-post="/add-to-cart" hx-swap="none" class="mt-4">
-                <div class="flex items-center justify-between mb-3">
-                  <label for={`quantity-${product.id}`} class="text-gray-700">
-                    Quantity:
-                  </label>
-                  <div class="flex items-center">
-                    <button
-                      type="button"
-                      class="bg-gray-200 text-gray-700 w-8 h-8 flex items-center justify-center rounded-l"
-                      onclick={`if(this.nextElementSibling.value > 1) this.nextElementSibling.value--`}
-                    >
-                      -
-                    </button>
-                    <input
-                      type="number"
-                      id={`quantity-${product.id}`}
-                      name="quantity"
-                      value="1"
-                      min="1"
-                      max="99"
-                      class="w-12 h-8 text-center border-y"
-                    />
-                    <button
-                      type="button"
-                      class="bg-gray-200 text-gray-700 w-8 h-8 flex items-center justify-center rounded-r"
-                      onclick={`this.previousElementSibling.value = parseInt(this.previousElementSibling.value) + 1`}
-                    >
-                      +
-                    </button>
-                  </div>
+              <div className="h-48 bg-gray-200 relative">
+                {/* Product Image Placeholder */}
+                <div className="absolute inset-0 flex items-center justify-center text-gray-500">
+                  <span className="font-serif text-sm">Product Image</span>
                 </div>
-                <input
-                  type="hidden"
-                  name="productId"
-                  value={String(product.id)}
-                />
-                <button
-                  class="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded"
-                  type="submit"
-                  onclick={`createToast('Added 1 ${product.name} to cart', 'success')`}
-                >
-                  Add to Cart
-                </button>
-              </form>
+              </div>
+              
+              <div className="p-6">
+                <h2 className="text-xl font-serif font-medium text-gray-900 product-name">{product.name}</h2>
+                <p className="text-gray-600 mt-2 text-sm">{product.description}</p>
+                <p className="text-xl font-serif font-light mt-4 text-gray-900">
+                  {formatPrice(product.price)} ฿
+                </p>
+                
+                <form hx-post="/add-to-cart" hx-swap="none" className="mt-6">
+                  <div className="flex items-center justify-between mb-5">
+                    <label className="text-gray-700 font-serif">
+                      Quantity
+                    </label>
+                    <div className="flex items-center border border-gray-300 rounded">
+                      <button
+                        type="button"
+                        className="w-8 h-8 flex items-center justify-center text-gray-600 hover:bg-gray-100"
+                        onclick={`if(this.nextElementSibling.value > 1) this.nextElementSibling.value--`}
+                      >
+                        −
+                      </button>
+                      <input
+                        type="number"
+                        id={`quantity-${product.id}`}
+                        name="quantity"
+                        value="1"
+                        min="1"
+                        max="99"
+                        className="w-12 h-8 text-center border-x border-gray-300 focus:outline-none"
+                      />
+                      <button
+                        type="button"
+                        className="w-8 h-8 flex items-center justify-center text-gray-600 hover:bg-gray-100"
+                        onclick={`this.previousElementSibling.value = parseInt(this.previousElementSibling.value) + 1`}
+                      >
+                        +
+                      </button>
+                    </div>
+                  </div>
+                  <input
+                    type="hidden"
+                    name="productId"
+                    value={String(product.id)}
+                  />
+                  <button
+                    className="w-full bg-gray-900 hover:bg-gray-800 text-white py-3 px-4 rounded-md font-serif transition duration-300"
+                    type="submit"
+                    onclick={`createToast('Added ${product.name} to your collection', 'success')`}
+                  >
+                    Add to Collection
+                  </button>
+                </form>
+              </div>
             </div>
           ))}
         </div>

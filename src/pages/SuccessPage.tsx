@@ -25,54 +25,80 @@ export const SuccessPage = ({
   customerTel,
 }: SuccessPageProps) => {
   removePendingOrder(orderId);
-
   const product = getProductById(productId);
 
   return (
-    <Layout title="Order Success">
-      <div class="max-w-md mx-auto text-center">
-        <div class="bg-green-100 p-6 rounded-lg border border-green-200">
-          <div class="flex items-center space-x-2 justify-center">
-            <h1 class="text-3xl font-bold text-green-600">
+    <Layout>
+      <div className="max-w-3xl mx-auto my-16 px-4">
+        <div className="bg-gradient-to-r from-gray-900 to-gray-800 border border-amber-100 rounded-xl shadow-lg overflow-hidden">
+          
+          {/* Header */}
+          <div className="bg-gradient-to-r from-amber-600 to-amber-500 px-8 py-6">
+            <h1 className="text-3xl md:text-4xl font-extrabold text-white text-center">
               คำสั่งซื้อเสร็จสมบูรณ์
             </h1>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              class="size-2 text-green-600 w-1/4"
-            >
-              <path
-                fill-rule="evenodd"
-                d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25
-              17.385 2.25 12Zm13.36-1.814a.75.75 0 1 0-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 0 0-1.06 1.06l2.25 2.25a.75.75
-              0 0 0 1.14-.094l3.75-5.25Z"
-                clip-rule="evenodd"
-              />
+          </div>
+
+          {/* Success Icon */}
+          <div className="flex justify-center mt-2">
+            <div className="bg-white rounded-full p-4 border-4 border-amber-500 shadow-lg transform transition-all duration-300 hover:scale-110">
+            <svg xmlns="http://www.w3.org/2000/svg" 
+                className="h-16 w-16 stroke-amber-500 font-bold" 
+                fill="none" viewBox="0 0 24 24" 
+                stroke="currentColor" strokeWidth={4}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
             </svg>
+            </div>
           </div>
 
-          <p class="text-lg mb-2">
-            ขอบคุณสำหรับการสั่งซื้อ คุณ {customerName}.
-          </p>
+          {/* Main Content */}
+          <div className="px-8 py-6">
+            <p className="text-lg text-center text-gray-300 mb-8">
+              ขอบคุณสำหรับการสั่งซื้อ คุณ <span className="font-bold">{customerName}</span>
+            </p>
 
-          <div class="bg-white p-4 rounded shadow-sm mb-6">
-            <h3 class="font-bold text-lg mb-2">รายละเอียดการสั่งซื้อ</h3>
-            <p class="mb-1">Order ID: #{orderId}</p>
-            <p class="mb-1">สินค้า: {product?.name}</p>
-            <p class="mb-1">จำนวน: {quantity}</p>
-            <p class="mb-1">จัดส่งไปยัง: ตึก Tipco Tower 2 ชั้น 20</p>
-            <p class="mb-1">เบอร์โทรศัพท์: {customerTel}</p>
-            <p class="font-bold">ราคาสุทธิ: {formatPrice(totalAmount)} บาท</p>
+            <div className="bg-white rounded-lg border border-gray-200 p-6 mb-6 shadow-md">
+              <h2 className="text-xl font-semibold text-amber-800 border-b border-gray-200 pb-3 mb-4">
+                รายละเอียดการสั่งซื้อ
+              </h2>
+              
+              <div className="space-y-4 text-gray-700">
+                <div className="flex justify-between items-center">
+                  <span className="font-medium">สินค้า:</span>
+                  <span className="text-lg">{product?.name}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="font-medium">จำนวน:</span>
+                  <span className="text-lg">{quantity}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="font-medium">จัดส่งไปยัง:</span>
+                  <span className="text-lg">ตึก Tipco Tower 2 ชั้น 20</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="font-medium">เบอร์โทรศัพท์:</span>
+                  <span className="text-lg">{customerTel}</span>
+                </div>
+                <div className="flex justify-between items-center pt-3 border-t border-gray-200 mt-3">
+                  <span className="font-semibold text-lg">ราคาสุทธิ:</span>
+                  <span className="font-semibold text-lg text-amber-800">{formatPrice(totalAmount)} บาท</span>
+                </div>
+              </div>
+            </div>
+
+            <p className="text-center text-gray-400 mb-8">
+              รายละเอียดการสั่งซื้อจะถูกส่งไปยัง <span className="font-medium text-amber-700">{customerEmail}</span>
+            </p>
+
+            <div className="text-center">
+              <a
+                href="/"
+                className="inline-block px-8 py-3 bg-gradient-to-r from-amber-600 to-amber-500 text-white font-medium rounded-full shadow-md hover:from-amber-700 hover:to-amber-600 transition-all duration-300 transform hover:-translate-y-1"
+              >
+                กลับสู่หน้าหลัก
+              </a>
+            </div>
           </div>
-          <p class="mb-6">รายละเอียดการสั่งซื้อจะถูกส่งไปยัง {customerEmail}</p>
-
-          <a
-            href="/"
-            class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-6 rounded inline-block"
-          >
-            กลับสู่หน้าหลัก
-          </a>
         </div>
       </div>
     </Layout>
