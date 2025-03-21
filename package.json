@@ -2,7 +2,9 @@
   "name": "bun-elysiajs-htmx-getting-started",
   "version": "1.0.50",
   "scripts": {
-    "dev": "bun run --watch src/index.tsx"
+    "dev": "bun run --watch src/index.tsx",
+    "format": "prettier --write .",
+    "check": "prettier --check ."
   },
   "dependencies": {
     "@elysiajs/html": "^0.8.0",
@@ -17,7 +19,8 @@
     "@playwright/test": "^1.51.1",
     "@types/node": "^22.13.10",
     "@types/nodemailer": "^6.4.17",
-    "bun-types": "latest"
+    "bun-types": "latest",
+    "prettier": "^3.5.3"
   },
   "module": "src/index.js"
 }
