@@ -13,7 +13,7 @@ const poloProductName = 'เสื้อโปโล'
 test.beforeEach(async ({ page }) => {
     const displayProductPage = new DisplayProductPage(page);
     await displayProductPage.gotoDisplayProduct();
-
+})
 
 test.describe("User add product to cart success", () => {
 
