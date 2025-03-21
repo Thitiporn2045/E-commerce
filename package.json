@@ -2,7 +2,6 @@
   "name": "bun-elysiajs-htmx-getting-started",
   "version": "1.0.50",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "bun run --watch src/index.tsx"
   },
   "dependencies": {
@@ -15,6 +14,8 @@
     "react-dom": "^19.0.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.51.1",
+    "@types/node": "^22.13.10",
     "@types/nodemailer": "^6.4.17",
     "bun-types": "latest"
   },
