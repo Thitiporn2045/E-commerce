@@ -83,6 +83,25 @@ test.describe(`Add ${canColdProductName} and ${poloProductName} to cart success`
     await expect(page.locator('#quantity-2')).toHaveValue(`${n}`)
     await page.locator('div:nth-child(2) > .p-6 > .mt-6 > .w-full').click() // click add to cart
     await expect(page.getByText(toastMsg(poloProductName))).toBeVisible()
+
+    await page.getByRole('link', { name: 'Cart' }).click()
+    await expect(
+      page.getByRole('heading', { name: 'Your Collection' })
+    ).toBeVisible()
+    await expect(
+      page.getByRole('heading', { name: canColdProductName })
+    ).toBeVisible()
+    await expect(
+      page.getByRole('cell', { name: '− 99 +' }).getByRole('spinbutton')
+    ).toBeVisible()
+
+    await expect(
+      page.getByRole('heading', { name: poloProductName })
+    ).toBeVisible()
+    await expect(
+      page.getByRole('cell', { name: `− ${n} +` }).getByRole('spinbutton')
+    ).toBeVisible()
+    
   })
 })
 
