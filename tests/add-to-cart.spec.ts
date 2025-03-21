@@ -14,17 +14,23 @@ test.beforeEach(async ({ page }) => {
     const displayProductPage = new DisplayProductPage(page);
     await displayProductPage.gotoDisplayProduct();
 
-    await page.evaluate(() => {
-        localStorage.clear();
-        sessionStorage.clear();
-    });
-    await page.reload();
-    await page.evaluate(() => {
-        fetch('/clear-cart', { method: 'POST' });
-    });
-});
 
 test.describe("User add product to cart success", () => {
+
+    test.beforeEach(async ({ page }) => {
+        const displayProductPage = new DisplayProductPage(page);
+        await displayProductPage.gotoDisplayProduct();
+    
+        await page.evaluate(() => {
+            localStorage.clear();
+            sessionStorage.clear();
+        });
+        await page.reload();
+        await page.evaluate(() => {
+            fetch('/clear-cart', { method: 'POST' });
+        });
+    });
+
     test('check 16 items', async ({ page }) => {
         const items = await page.locator('text=/฿Quantity−\+Add|฿Quantity−\+Add to Cart|฿/').count();
         expect(items).toBe(16);
