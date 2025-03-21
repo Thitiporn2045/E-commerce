@@ -50,13 +50,10 @@ export const routes = new Elysia()
 
       addToCart(productId, quantity);
 
-      set.headers["HX-Trigger"] = JSON.stringify({
-        itemAddedToCart: {
-          productId: productId,
-          quantity: quantity,
-          name: product?.name || "Product",
-        },
-      });
+      // Improved trigger for toasts
+      set.headers["HX-Trigger"] = "itemAddedToCart";
+      set.headers["HX-Trigger-product-id"] = String(productId);
+      set.headers["HX-Trigger-quantity"] = String(quantity);
 
       return null;
     },
