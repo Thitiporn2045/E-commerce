@@ -34,7 +34,7 @@ test('TC04', async ({ page }) => {
     await page.getByRole('heading', { name: 'Your Collection' }).click();
 });
 
-test('TC06', async ({ page }) => {
+test('add กระป๋องเก็บความเย็น 5 ชิ้น, เสื้อโปโล 3 ชิ้น, ถุงผ้า 1 ชิ้น', async ({ page }) => {
     await page.locator('button:nth-child(3)').first().click();
     await page.locator('button:nth-child(3)').first().click();
     await page.locator('button:nth-child(3)').first().click();
