@@ -86,8 +86,6 @@ test.describe(`Add ${canColdProductName} and ${poloProductName} to cart success`
   })
 })
 
-});
-
 test.describe("User add product to cart success", () => {
     test('user ต้องการเพิ่มสินค้าชื่อ กระป๋องเก็บความเย็น จำนวน 3 ชิ้น', async ({ page }) => {
         await page.locator('button:nth-child(3)').first().click();
