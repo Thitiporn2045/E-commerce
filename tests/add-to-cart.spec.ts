@@ -33,3 +33,22 @@ test('TC04', async ({ page }) => {
     await page.getByRole('link', { name: 'Cart' }).click();
     await page.getByRole('heading', { name: 'Your Collection' }).click();
 });
+
+test('TC06', async ({ page }) => {
+    await page.locator('button:nth-child(3)').first().click();
+    await page.locator('button:nth-child(3)').first().click();
+    await page.locator('button:nth-child(3)').first().click();
+    await page.locator('button:nth-child(3)').first().click();
+    await page.locator('.w-full').first().click();
+    await expect(page.getByText('Added กระป๋องเก็บความเย็น to')).toBeVisible();
+
+    await page.locator('div:nth-child(2) > .p-6 > .mt-6 > div > div > button:nth-child(3)').click();
+    await page.locator('div:nth-child(2) > .p-6 > .mt-6 > div > div > button:nth-child(3)').click();
+    await page.locator('div:nth-child(2) > .p-6 > .mt-6 > .w-full').click();
+    await expect(page.getByText('Added เสื้อโปโล to your')).toBeVisible();
+
+    await page.locator('div').filter({ hasText: /^ถุงผ้าถุงผ้ารักษ์โลก ทนทานสูง รับน้ำหนักได้มาก690\.00 ฿Quantity−\+Add to Cart$/ }).getByRole('button').nth(2).click();
+    await expect(page.getByText('Added ถุงผ้า to your')).toBeVisible();
+
+    await expect(page.getByRole('heading', { name: 'Luxury Collection' })).toBeVisible();
+});
